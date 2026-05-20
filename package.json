@@ -1,7 +1,7 @@
 {
   "name": "display-calendar",
   "private": true,
-  "version": "0.7.1",
+  "version": "0.7.2",
   "description": "A Home Assistant calendar card designed for wall-mounted displays",
   "author": {
     "name": "Stu Kabakoff",
@@ -38,7 +38,7 @@
     "home-assistant-js-websocket": "^9.6.0",
     "leaflet": "^1.9.4",
     "preact": "^10.27.2",
-    "preact-homeassistant": "^0.2.2"
+    "preact-homeassistant": "^0.2.3"
   },
   "dependenciesMeta": {
     "preact-homeassistant": {
