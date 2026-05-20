@@ -1,0 +1,122 @@
+import { css } from 'preact-homeassistant';
+
+export const eventListStyles = css`
+.event-list {
+  font-family: system-ui, -apple-system, sans-serif;
+  padding: 0.25em 0.25em 0 0.25em;
+}
+
+.event-list-empty {
+  color: var(--secondary-text-color, #888);
+  text-align: center;
+  padding: 1em;
+  font-size: 0.875em;
+}
+
+/* Event item - styled as a button for accessibility.
+   The iOS-Safari button resets (appearance, min-width) match those in
+   MonthGrid's .day-cell — without them, Safari < 16 gives buttons in flex
+   contexts an implicit content-based min-width that breaks the layout and
+   in some cases swallows taps before they reach the onClick handler. */
+.event-item {
+  font-size: inherit;
+  display: flex;
+  align-items: stretch;
+  gap: 0.25em;
+  padding: 0.25em 0.5em 0.25em 0;
+  min-height: 1.5em;
+  min-width: 0;
+  width: 100%;
+  background: none;
+  border: none;
+  -webkit-appearance: none;
+  appearance: none;
+  border-radius: 6px;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  touch-action: manipulation;
+  transition: background-color 0.15s;
+}
+
+.event-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.event-item:focus {
+  outline: 2px solid var(--primary-color, #3b82f6);
+  outline-offset: -2px;
+}
+
+.event-item:active {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+/* Color bars on left edge - full height of event */
+.event-colors {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  width: 4px;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.event-color-bar {
+  flex: 1;
+  width: 100%;
+  min-height: 0;
+}
+
+/* Event content */
+.event-content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.event-time {
+  font-size: 0.75em;
+  line-height: 1;
+  font-weight: 600;
+  color: var(--secondary-text-color, #aaa);
+  font-variant-numeric: tabular-nums;
+}
+
+.event-summary {
+  font-size: 0.875em;
+  color: var(--primary-text-color, #fff);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Weather display */
+.event-weather {
+  display: flex;
+  align-items: center;
+  align-self: center;
+  gap: 0.25em;
+  flex-shrink: 0;
+  color: var(--secondary-text-color, #aaa);
+}
+
+.weather-icon {
+  font-size: 1em;
+}
+
+.weather-temp {
+  font-size: 0.75em;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Divider between timed and all-day events */
+.event-divider {
+  height: 1px;
+  background-color: var(--divider-color, rgba(255, 255, 255, 0.2));
+  margin: 0.5em 0;
+}
+`;
