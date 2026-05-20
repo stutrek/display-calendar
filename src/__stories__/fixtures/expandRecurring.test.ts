@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { expandRecurring, type RecurringRule } from './expandRecurring';
+import { type RecurringRule, expandRecurring } from './expandRecurring';
 
 const CAL = 'calendar.test' as const;
 

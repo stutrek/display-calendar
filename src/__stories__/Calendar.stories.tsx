@@ -11,7 +11,7 @@ import {
 // Import component styles to register them
 import '../CalendarCard/DisplayCalendarCard.styles';
 
-import { expandRecurring, type RecurringRule } from './fixtures/expandRecurring';
+import { type RecurringRule, expandRecurring } from './fixtures/expandRecurring';
 import { household, jordan, riley } from './fixtures/personas';
 import hourlyForecast from './weatherForecastHourly.json';
 

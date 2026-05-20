@@ -80,11 +80,7 @@ export function expandRecurring(
   const events: CalendarEventWithSource[] = [];
 
   // Walk midnight-to-midnight, day by day.
-  const cursor = new Date(
-    range.start.getFullYear(),
-    range.start.getMonth(),
-    range.start.getDate(),
-  );
+  const cursor = new Date(range.start.getFullYear(), range.start.getMonth(), range.start.getDate());
   const stop = new Date(range.end.getFullYear(), range.end.getMonth(), range.end.getDate());
 
   while (cursor <= stop) {
