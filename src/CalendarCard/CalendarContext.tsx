@@ -48,6 +48,7 @@ export interface CalendarConfig {
   weatherEntity?: `weather.${string}`;
   fontSize?: FontSize;
   showCalendar?: boolean;
+  hidePastEvents?: boolean;
 }
 
 /** Config with colors guaranteed (after normalization) */
@@ -56,6 +57,7 @@ export interface NormalizedCalendarConfig {
   weatherEntity?: `weather.${string}`;
   fontSize?: FontSize;
   showCalendar?: boolean;
+  hidePastEvents?: boolean;
 }
 
 /**
@@ -400,6 +402,11 @@ export function CalendarProvider({
 
   // Events for selected day
   const eventsForSelectedDay = useMemo(() => {
+    const isToday =
+      selectedDay.getFullYear() === today.getFullYear() &&
+      selectedDay.getMonth() === today.getMonth() &&
+      selectedDay.getDate() === today.getDate();
+
     const dayEvents = allEvents.filter((event) => {
       const start = parseEventDate(event.start);
       const end = parseEventDate(event.end);
@@ -413,10 +420,12 @@ export function CalendarProvider({
         selectedDay.getMonth(),
         selectedDay.getDate() + 1,
       );
-      return start < dayEnd && end > dayStart;
+      if (!(start < dayEnd && end > dayStart)) return false;
+      if (config.hidePastEvents && isToday && !event.isAllDay && end <= new Date()) return false;
+      return true;
     });
     return sortEvents(dayEvents);
-  }, [allEvents, selectedDay]);
+  }, [allEvents, selectedDay, today, config.hidePastEvents]);
 
   // Pre-compute colors for each day to avoid O(days × events) in render
   const colorsByDay = useMemo(() => {

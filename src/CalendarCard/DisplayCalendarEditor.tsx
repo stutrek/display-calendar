@@ -44,16 +44,22 @@ const TOP_SCHEMA = [
     name: 'showCalendar',
     selector: { boolean: {} },
   },
+  {
+    name: 'hidePastEvents',
+    selector: { boolean: {} },
+  },
 ] as const;
 
 const TOP_LABELS: Record<string, string> = {
   weatherEntity: 'Weather entity (optional)',
   fontSize: 'Font size',
   showCalendar: 'Show calendar grid',
+  hidePastEvents: 'Hide past events',
 };
 
 const TOP_HELPERS: Record<string, string> = {
   showCalendar: 'When off, the ‹ › buttons move one day at a time.',
+  hidePastEvents: 'When on, already-ended events are hidden when viewing today.',
 };
 
 const calendarSelector = { entity: { domain: 'calendar' } };
@@ -89,6 +95,7 @@ function CalendarEditorContent({ hass, config, onConfigChanged }: EditorProps) {
       weatherEntity,
       fontSize: next.fontSize as FontSize,
       showCalendar: next.showCalendar !== false,
+      hidePastEvents: next.hidePastEvents === true,
     });
   });
 
@@ -137,6 +144,7 @@ function CalendarEditorContent({ hass, config, onConfigChanged }: EditorProps) {
     weatherEntity: config.weatherEntity,
     fontSize: config.fontSize ?? 'small',
     showCalendar: config.showCalendar !== false,
+    hidePastEvents: config.hidePastEvents === true,
   };
 
   return (
