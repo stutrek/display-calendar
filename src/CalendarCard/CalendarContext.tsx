@@ -4,7 +4,7 @@ import { useCallbackStable } from 'preact-homeassistant';
 import {
   type CalendarEventWithSource,
   type WeatherForecast,
-  useMultiCalendarEvents,
+  useCalendarEvents,
   useWeatherForecast,
 } from 'preact-homeassistant';
 import { useContext, useEffect, useMemo, useState } from 'preact/hooks';
@@ -298,6 +298,25 @@ interface CalendarProviderProps {
 }
 
 /**
+ * Date range covering the full calendar grid for a month (partial weeks
+ * included): from the Sunday of the week containing the 1st to the Saturday of
+ * the week containing the last day.
+ */
+function monthGridRange(month: Date): { start: Date; end: Date } {
+  const firstOfMonth = new Date(month.getFullYear(), month.getMonth(), 1);
+  const lastOfMonth = new Date(month.getFullYear(), month.getMonth() + 1, 0);
+
+  const start = new Date(firstOfMonth);
+  start.setDate(start.getDate() - start.getDay());
+
+  const end = new Date(lastOfMonth);
+  end.setDate(end.getDate() + (6 - end.getDay()));
+  end.setHours(23, 59, 59, 999);
+
+  return { start, end };
+}
+
+/**
  * Calendar Provider that manages calendar UI state and event processing.
  *
  * For Storybook/testing: Pass events and hourlyForecast props directly.
@@ -339,25 +358,7 @@ export function CalendarProvider({
   const [selectedDay, setSelectedDay] = useState(() => initialDate ?? today);
 
   // Date range for fetching (covers the visible calendar month grid)
-  const dateRange = useMemo(() => {
-    // First day of the month
-    const firstOfMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
-    // Last day of the month
-    const lastOfMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0);
-
-    // Extend to cover the full calendar grid (which shows partial weeks)
-    // Start from the Sunday of the week containing the 1st
-    const start = new Date(firstOfMonth);
-    start.setDate(start.getDate() - start.getDay());
-
-    // End on the Saturday of the week containing the last day
-    const end = new Date(lastOfMonth);
-    end.setDate(end.getDate() + (6 - end.getDay()));
-    // Set to end of day
-    end.setHours(23, 59, 59, 999);
-
-    return { start, end };
-  }, [currentMonth]);
+  const dateRange = useMemo(() => monthGridRange(currentMonth), [currentMonth]);
 
   // Get entity IDs from config
   const calendarEntityIds = useMemo(
@@ -371,12 +372,14 @@ export function CalendarProvider({
   let hookForecast: WeatherForecast[] | undefined;
   let hookLoading = false;
   let hookRefreshing = false;
+  let hookPrefetch: ((range: { start: Date; end: Date }) => void) | undefined;
 
   try {
-    const eventsResult = useMultiCalendarEvents(calendarEntityIds, dateRange);
+    const eventsResult = useCalendarEvents(calendarEntityIds, dateRange);
     hookEvents = eventsResult.events;
     hookLoading = eventsResult.status === 'loading';
     hookRefreshing = eventsResult.status === 'cached' || eventsResult.status === 'refreshing';
+    hookPrefetch = eventsResult.prefetch;
 
     if (config.weatherEntity) {
       const forecastResult = useWeatherForecast(config.weatherEntity, 'hourly');
@@ -387,6 +390,17 @@ export function CalendarProvider({
     // Not inside HAProvider - hooks will throw
     // This is expected when using prop data in Storybook
   }
+
+  // Warm the cache for the adjacent months so stepping prev/next is flash-free
+  // (the events are already cached when the grid switches). Fire-and-forget;
+  // no-op in Storybook where the hook (and thus prefetch) is unavailable.
+  useEffect(() => {
+    if (!hookPrefetch) return;
+    const prevMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1);
+    const nextMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1);
+    hookPrefetch(monthGridRange(prevMonth));
+    hookPrefetch(monthGridRange(nextMonth));
+  }, [currentMonth, calendarEntityIds, hookPrefetch]);
 
   // Use prop data if provided, otherwise use hook data
   const events = propEvents ?? hookEvents ?? [];

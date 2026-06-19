@@ -1,78 +1,9 @@
 import { css } from 'preact-homeassistant';
 
 export const eventModalStyles = css`
-/* Dialog element - centered card */
-.event-modal {
-  border: none;
-  border-radius: var(--ha-card-border-radius, 12px);
-  background: var(--ha-card-background, var(--card-background-color, #1c1c1c));
-  color: var(--primary-text-color, #fff);
-  padding: 0;
-  max-width: min(90vw, 800px);
-  max-height: 90vh;
-  overflow: hidden;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-}
-
-/* Backdrop overlay */
-.event-modal::backdrop {
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(2px);
-}
-
-/* Modal content container */
-.event-modal-content {
-  display: flex;
-  flex-direction: column;
-  max-height: 90vh;
-  overflow-y: auto;
-}
-
-/* Header with close button */
-.event-modal-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 0.5em;
-  padding: 1em 1em 0.5em;
-  position: sticky;
-  top: 0;
-  background: var(--ha-card-background, var(--card-background-color, #1c1c1c));
-  z-index: 1;
-}
-
-.event-modal-title {
-  margin: 0 1em 0 0;
-  font-size: 1.125em;
-  font-weight: 600;
-  line-height: 1.3;
-  flex: 1;
-  min-width: 0;
-}
-
-.event-modal-close {
-  background: none;
-  border: none;
-  padding: 0.25em;
-  margin: -0.25em;
-  cursor: pointer;
-  color: var(--secondary-text-color, #888);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-
-.event-modal-close:hover {
-  color: var(--primary-text-color, #fff);
-  background: rgba(255, 255, 255, 0.1);
-}
-
-.event-modal-close:focus {
-  outline: 2px solid var(--primary-color, #3b82f6);
-  outline-offset: 2px;
-}
+/* The dialog shell — surface, scrim, header, title, and close button — is
+   provided by <ha-adaptive-dialog>. These styles only cover the body content
+   we slot into it. */
 
 /* Body content — responsive grid.
    Narrow (default, single column): details → map → description, stacked.
@@ -81,7 +12,6 @@ export const eventModalStyles = css`
    description (rendered as a sibling of the details column) can slot
    between location and map on narrow screens. */
 .event-modal-body {
-  padding: 0 1em 1em;
   display: grid;
   grid-template-columns: 1fr;
   grid-template-areas:
@@ -171,7 +101,9 @@ export const eventModalStyles = css`
   line-height: 1.5;
   white-space: pre-wrap;
   color: var(--primary-text-color, #fff);
-  max-height: 200px;
+  /* Scale the cap with the viewport so long descriptions get room to breathe
+     on large screens, while keeping a sensible floor on small ones. */
+  max-height: max(200px, 50vh);
   overflow-y: auto;
   padding: 0.5em;
   background: rgba(255, 255, 255, 0.05);
