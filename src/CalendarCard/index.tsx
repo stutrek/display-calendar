@@ -1,4 +1,4 @@
-import { registerPreactCard } from 'preact-homeassistant';
+import { HACard, registerPreactCard } from 'preact-homeassistant';
 import { type CalendarConfig, CalendarProvider, useCalendar } from './CalendarContext';
 import { EventList } from './EventList';
 import { MonthGrid } from './MonthGrid';
@@ -36,21 +36,21 @@ function CalendarCardContent({ config }: { config: CardConfig }) {
 
   if (config.calendars.length === 0) {
     return (
-      <ha-card class={sizeClass}>
+      <HACard class={sizeClass}>
         <div class="card-content calendar-card">
           <div class="calendar-loading">Add a calendar to get started</div>
         </div>
-      </ha-card>
+      </HACard>
     );
   }
 
   return (
     <CalendarProvider config={config}>
-      <ha-card class={sizeClass}>
+      <HACard class={sizeClass}>
         <div class="card-content calendar-card">
           <CalendarCardInner />
         </div>
-      </ha-card>
+      </HACard>
     </CalendarProvider>
   );
 }
