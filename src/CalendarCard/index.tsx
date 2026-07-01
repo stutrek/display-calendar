@@ -32,18 +32,10 @@ export function CalendarCardInner() {
 }
 
 function CalendarCardContent({ config }: { config: CardConfig }) {
-  const sizeClass = `size-${config.fontSize || 'small'}`;
+  const sizeClass = `size-${config.fontSize || 'large'}`;
 
-  if (config.calendars.length === 0) {
-    return (
-      <HACard class={sizeClass}>
-        <div class="card-content calendar-card">
-          <div class="calendar-loading">Add a calendar to get started</div>
-        </div>
-      </HACard>
-    );
-  }
-
+  // With no calendars configured we still render the month grid so the card
+  // shows the current month; the event list simply has nothing to show.
   return (
     <CalendarProvider config={config}>
       <HACard class={sizeClass}>

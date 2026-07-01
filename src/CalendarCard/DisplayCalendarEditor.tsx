@@ -68,7 +68,20 @@ function CalendarEditorContent({ hass, config, onConfigChanged }: EditorProps) {
   const [calendars, setCalendars] = useState<CalendarConfigItem[]>(config.calendars ?? []);
 
   useEffect(() => {
-    setCalendars(config.calendars ?? []);
+    const incoming = config.calendars ?? [];
+    setCalendars((prev) => {
+      // config only ever holds fully-selected calendars (empty rows are filtered
+      // out before persisting). If the incoming config just reflects our own
+      // edit, keep the local list so in-progress empty rows the user is still
+      // filling in aren't wiped. Otherwise config changed externally — adopt it.
+      const prevValid = prev.filter((cal) => cal.entityId?.startsWith('calendar.'));
+      const mirrorsOurEdit =
+        incoming.length === prevValid.length &&
+        incoming.every(
+          (cal, i) => cal.entityId === prevValid[i].entityId && cal.color === prevValid[i].color,
+        );
+      return mirrorsOurEdit ? prev : incoming;
+    });
   }, [config]);
 
   const fireConfigChanged = useCallbackStable(
@@ -142,10 +155,26 @@ function CalendarEditorContent({ hass, config, onConfigChanged }: EditorProps) {
   // showCalendar undefined is treated as true to match the rendered card.
   const topData = {
     weatherEntity: config.weatherEntity,
-    fontSize: config.fontSize ?? 'small',
+    fontSize: config.fontSize ?? 'large',
     showCalendar: config.showCalendar !== false,
     hidePastEvents: config.hidePastEvents === true,
   };
+
+  // With no calendars configured, the card can't show anything, so the only
+  // meaningful action is to add one. Hide every other setting behind that CTA.
+  if (calendars.length === 0) {
+    return (
+      <div class="editor">
+        <style>{editorStyles}</style>
+        <div class="empty-state">
+          <div class="empty-state__text">Add a calendar to get started.</div>
+          <button class="cta-btn" type="button" onClick={addCalendar}>
+            + Add Calendar
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div class="editor">
@@ -154,9 +183,6 @@ function CalendarEditorContent({ hass, config, onConfigChanged }: EditorProps) {
       <div class="section">
         <div class="section-header">
           <span>Calendars</span>
-          <button class="add-btn" type="button" onClick={addCalendar}>
-            + Add Calendar
-          </button>
         </div>
 
         {calendars.map((cal, index) => (
@@ -184,9 +210,11 @@ function CalendarEditorContent({ hass, config, onConfigChanged }: EditorProps) {
           </div>
         ))}
 
-        {calendars.length === 0 && (
-          <div class="empty-message">No calendars added. Click "Add Calendar" to get started.</div>
-        )}
+        <div class="calendar-row calendar-row--add">
+          <button class="add-btn" type="button" onClick={addCalendar}>
+            + Add Calendar
+          </button>
+        </div>
       </div>
 
       <div class="section">
@@ -222,14 +250,48 @@ const editorStyles = `
     color: var(--primary-text-color);
   }
 
+  .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    padding: 32px 16px;
+    text-align: center;
+  }
+
+  .empty-state__text {
+    color: var(--secondary-text-color);
+    font-size: 14px;
+  }
+
+  .cta-btn {
+    background: var(--primary-color);
+    color: var(--text-primary-color);
+    border: none;
+    border-radius: 4px;
+    padding: 12px 24px;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 500;
+  }
+
+  .cta-btn:hover {
+    opacity: 0.9;
+  }
+
+  .calendar-row--add {
+    justify-content: flex-start;
+  }
+
   .add-btn {
     background: var(--primary-color);
     color: var(--text-primary-color);
     border: none;
     border-radius: 4px;
-    padding: 6px 12px;
+    padding: 8px 12px;
     cursor: pointer;
-    font-size: 12px;
+    font-size: 13px;
+    width: 100%;
   }
 
   .add-btn:hover {
@@ -283,15 +345,6 @@ const editorStyles = `
 
   .remove-btn:hover {
     opacity: 0.9;
-  }
-
-  .empty-message {
-    color: var(--secondary-text-color);
-    font-size: 14px;
-    padding: 12px;
-    text-align: center;
-    border: 1px dashed var(--divider-color);
-    border-radius: 4px;
   }
 `;
 
